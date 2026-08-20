@@ -1,0 +1,40 @@
+name: Rebuild data.json
+
+on:
+  schedule:
+    # Every Sunday at 09:00 UTC. Adjust as needed.
+    - cron: '0 9 * * 0'
+  workflow_dispatch: {}  # allows manual "Run workflow" trigger from the Actions tab
+
+permissions:
+  contents: write  # needed to commit data.json back to the repo
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run build script
+        run: python build.py
+
+      - name: Commit data.json if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          if git diff --cached --quiet; then
+            echo "No changes to data.json, nothing to commit."
+          else
+            git commit -m "Update data.json ($(date -u +%Y-%m-%d))"
+            git push
+          fi

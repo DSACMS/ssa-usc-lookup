@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Social Security Act / U.S. Code Lookup</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uswds/3.13.0/css/uswds.min.css">
+</head>
+<body>
+
+<div class="usa-overlay"></div>
+
+<header class="usa-header usa-header--basic">
+  <div class="usa-nav-container">
+    <div class="usa-navbar">
+      <div class="usa-logo">
+        <em class="usa-logo__text">SSA &rarr; U.S. Code Lookup</em>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="grid-container" style="margin-top: 2rem; margin-bottom: 4rem;">
+  <div class="grid-row">
+    <div class="grid-col-12 tablet:grid-col-8">
+
+      <h1>Look up a Social Security Act or U.S. Code section</h1>
+      <p class="usa-intro">
+        Enter an SSA section (e.g. <code>531</code>) or a U.S. Code citation
+        (e.g. <code>1382</code> or <code>42 1382</code>). Data is refreshed weekly from
+        <a href="https://www.law.cornell.edu/uscode/text/42" target="_blank" rel="noreferrer">Cornell Law</a>
+        and <a href="https://uscode.house.gov/table3/1935_531.htm" target="_blank" rel="noreferrer">uscode.house.gov</a>.
+      </p>
+
+      <div class="usa-form-group">
+        <label class="usa-label" for="query">Section number</label>
+        <input class="usa-input" id="query" type="text" autocomplete="off" placeholder="e.g. 531 or 1382">
+      </div>
+
+      <div id="status" class="usa-hint" aria-live="polite"></div>
+
+      <div id="results" style="margin-top: 1.5rem;"></div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/uswds/3.13.0/js/uswds.min.js"></script>
+
+<script>
+let DATA = null;
+const statusEl = document.getElementById('status');
+const resultsEl = document.getElementById('results');
+const queryEl = document.getElementById('query');
+
+async function loadData() {
+  statusEl.textContent = 'Loading data...';
+  try {
+    const resp = await fetch('data.json');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    DATA = await resp.json();
+    const generated = new Date(DATA.generated).toLocaleDateString();
+    statusEl.textContent = 'Data last updated ' + generated + '. Start typing to search.';
+  } catch (e) {
+    statusEl.textContent = 'Could not load data.json: ' + e.message;
+  }
+}
+
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function renderSection(citation, entry) {
+  const card = document.createElement('div');
+  card.className = 'usa-card';
+  card.style.marginBottom = '1.5rem';
+
+  const inner = document.createElement('div');
+  inner.className = 'usa-card__container';
+
+  const header = document.createElement('div');
+  header.className = 'usa-card__header';
+  header.innerHTML = '<h2 class="usa-card__heading">' + escapeHtml(citation) + '</h2>';
+  inner.appendChild(header);
+
+  const body = document.createElement('div');
+  body.className = 'usa-card__body';
+
+  if (!entry) {
+    body.innerHTML = '<p><em>No data found for this section.</em></p>';
+  } else if (entry.repealed) {
+    body.innerHTML =
+      '<div class="usa-alert usa-alert--warning usa-alert--slim">' +
+      '<div class="usa-alert__body"><p class="usa-alert__text">' +
+      'This section has been repealed, omitted, or renumbered' +
+      (entry.head ? ': ' + escapeHtml(entry.head) : '.') +
+      '</p></div></div>';
+    if (entry.note) {
+      const p = document.createElement('p');
+      p.className = 'usa-hint';
+      p.textContent = entry.note;
+      body.appendChild(p);
+    }
+  } else if (entry.error) {
+    body.innerHTML =
+      '<div class="usa-alert usa-alert--error usa-alert--slim">' +
+      '<div class="usa-alert__body"><p class="usa-alert__text">' +
+      'Could not retrieve this section: ' + escapeHtml(entry.error) +
+      '</p></div></div>';
+  } else {
+    const pre = document.createElement('pre');
+    pre.style.whiteSpace = 'pre-wrap';
+    pre.style.fontFamily = 'inherit';
+    pre.textContent = entry.text;
+    body.appendChild(pre);
+  }
+
+  inner.appendChild(body);
+  card.appendChild(inner);
+  return card;
+}
+
+function baseSection(uscValue) {
+  const pos = uscValue.indexOf('(');
+  return pos === -1 ? uscValue : uscValue.substring(0, pos);
+}
+
+function search(raw) {
+  resultsEl.innerHTML = '';
+  const q = raw.trim();
+  if (!q || !DATA) return;
+
+  const matches = [];
+
+  // 1. Exact SSA section match
+  if (DATA.crosswalk[q]) {
+    const usc = DATA.crosswalk[q];
+    const key = DATA.title + ' ' + baseSection(usc);
+    matches.push({ citation: 'SSA §' + q + '  (42 U.S.C. § ' + usc + ')', entry: DATA.sections[key] });
+  }
+
+  // 2. Direct U.S. Code section match (with or without title prefix)
+  const uscKeyDirect = q.startsWith(DATA.title + ' ') ? q : DATA.title + ' ' + baseSection(q);
+  if (DATA.sections[uscKeyDirect] && !matches.some(m => m.entry === DATA.sections[uscKeyDirect])) {
+    matches.push({ citation: '42 U.S.C. § ' + baseSection(q), entry: DATA.sections[uscKeyDirect] });
+  }
+
+  // 3. Fallback: partial match on SSA section numbers (prefix match)
+  if (matches.length === 0) {
+    const prefixMatches = Object.keys(DATA.crosswalk).filter(k => k.startsWith(q)).slice(0, 15);
+    for (const k of prefixMatches) {
+      const usc = DATA.crosswalk[k];
+      const key = DATA.title + ' ' + baseSection(usc);
+      matches.push({ citation: 'SSA §' + k + '  (42 U.S.C. § ' + usc + ')', entry: DATA.sections[key] });
+    }
+  }
+
+  if (matches.length === 0) {
+    resultsEl.innerHTML = '<p><em>No matches found for "' + escapeHtml(q) + '".</em></p>';
+    return;
+  }
+
+  for (const m of matches) {
+    resultsEl.appendChild(renderSection(m.citation, m.entry));
+  }
+}
+
+queryEl.addEventListener('input', (e) => search(e.target.value));
+loadData();
+</script>
+
+</body>
+</html>
