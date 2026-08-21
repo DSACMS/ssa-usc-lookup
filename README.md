@@ -6,47 +6,56 @@ Look up the full U.S. Code text for any Social Security Act section number. Stat
 
 **{project_statement}**
 
-<!---
+
 ### Project Vision
-**{project vision}** -->
+**{project vision}** 
 
-<!--
+
 ### Project Mission
-**{project mission}** -->
+**{project mission}** 
 
-<!--
+
 ### Agency Mission
-TODO: Good to include since this is an agency-led project -->
+TODO: Good to include since this is an agency-led project 
 
-<!--
+
 ### Team Mission
-TODO: Good to include since this is an agency-led project -->
+TODO: Good to include since this is an agency-led project 
 
-<!--
+
 ## Core Team
 
 A list of core team members responsible for the code and documentation in this repository can be found in [COMMUNITY.md](COMMUNITY.md).
--->
 
-<!--
+
 ## Repository Structure
+<pre>
+.
+├── build.py
+├── build.yml
+├── COMMUNITY.md
+├── data.json
+├── index.html
+├── LICENSE
+├── README.md
+├── repolinter.json
+├── requirements.txt
+└── statute2.py
+</pre>
 
-TODO: Including the repository structure helps viewers quickly understand the project layout. Using the "tree -d" command can be a helpful way to generate this information, but, be sure to update it as the project evolves and changes over time.
 
-**{list directories and descriptions}**
+- **build.yml**: Runs build.py as a GitHub action
+- **build.py**: Runs the script that scrapes the US Code (USC) and Social Security Act (SSA) locally and generates data.json and index.html files.
+- **data.json**: Collection of USC and SSA text saved locally so it can be served on static pages or local machines without a db.
+- **index.html**: barebones web UI for looking up sections of the Social Security Act (SSA) from data.json
+- **statute2.py**: Library for linking USC and SSA texts.
 
-TODO: Add a 'table of contents" for your documentation. Tier 0/1 projects with simple README.md files without many sections may or may not need this, but it is still extremely helpful to provide "bookmark" or "anchor" links to specific sections of your file to be referenced in tickets, docs, or other communication channels.
 
-**{list of .md at top directory and descriptions}**
-
--->
-
-<!---
 ## Local Development
 
  TODO - with example below:
 This project is monorepo with several apps. Please see the [api](./api/README.md) and [frontend](./frontend/README.md) READMEs for information on spinning up those projects locally. Also see the project [documentation](./documentation) for more info.
--->
+
 
 <!--
 ## Coding Style and Linters
@@ -56,10 +65,8 @@ TODO - Add the repo's linting and code style guidelines
 Each application has its own linting and testing guidelines. Lint and code tests are run on each commit, so linters and tests should be run locally before committing.
  -->
 
-<!---
 ## Branching Model
 
-TODO - with example below:
 This project follows [trunk-based development](https://trunkbaseddevelopment.com/), which means:
 
 * Make small changes in [short-lived feature branches](https://trunkbaseddevelopment.com/short-lived-feature-branches/) and merge to `main` frequently.
@@ -71,7 +78,6 @@ This project follows [trunk-based development](https://trunkbaseddevelopment.com
 This project uses **continuous deployment** using [Github Actions](https://github.com/features/actions) which is configured in the [./github/workflows](.github/workflows) directory.
 
 Pull-requests are merged to `main` and the changes are immediately deployed to the development environment. Releases are created to push changes to production.
--->
 
 ## Policies
 
