@@ -52,13 +52,24 @@ A list of core team members responsible for the code and documentation in this r
 
 
 ## Local Development
-
+### Installing dependencies
 ```bash
 python3 -m venv venv
 . venv/bin/activate
 pip install -r requirements.txt
+```
+### Running the script
+```bash
 python build.py
 ```
+
+### Running web UI Locally
+```bash
+python3 -m http.server
+
+```
+Then visit: [http://localhost:8000/](http://localhost:8000/)
+
 
 <!--
 ## Coding Style and Linters
