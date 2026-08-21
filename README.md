@@ -1,6 +1,6 @@
 # ssa-usc-lookup
 
-Look up the full U.S. Code text for any Social Security Act section number. Static site, no install required, data refreshed weeklly.
+Look up the full U.S. Code text for any Social Security Act section number. Static site, no install required, data refreshed weekly.
 
 ## About the Project
 
