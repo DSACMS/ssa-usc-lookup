@@ -53,9 +53,12 @@ A list of core team members responsible for the code and documentation in this r
 
 ## Local Development
 
- TODO - with example below:
-This project is monorepo with several apps. Please see the [api](./api/README.md) and [frontend](./frontend/README.md) READMEs for information on spinning up those projects locally. Also see the project [documentation](./documentation) for more info.
-
+```bash
+python3 -m venv venv
+. venv/bin/activate
+pip install -r requirements.txt
+python build.py
+```
 
 <!--
 ## Coding Style and Linters
