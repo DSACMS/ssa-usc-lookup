@@ -2,27 +2,6 @@
 
 Look up the full U.S. Code text for any Social Security Act section number. Static site, no install required, data refreshed weekly.
 
-## About the Project
-
-**{project_statement}**
-
-
-### Project Vision
-**{project vision}** 
-
-
-### Project Mission
-**{project mission}** 
-
-
-### Agency Mission
-TODO: Good to include since this is an agency-led project 
-
-
-### Team Mission
-TODO: Good to include since this is an agency-led project 
-
-
 ## Core Team
 
 A list of core team members responsible for the code and documentation in this repository can be found in [COMMUNITY.md](COMMUNITY.md).
